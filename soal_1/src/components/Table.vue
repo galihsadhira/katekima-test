@@ -36,14 +36,18 @@
       <thead class="bg-blue-600 text-white">
         <tr>
           <th class="border p-3 w-1/6 text-left">No</th>
-          <th class="border p-3 w-1/2 text-left">Name</th>
-          <th class="border p-3 w-1/4 text-left">Action</th>
+          <th class="border p-3 w-1/2 text-left">Nama</th>
+          <th class="border p-3 w-1/4 text-left">Aksi</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(berry, index) in paginatedItems" :key="berry.name" class="hover:bg-gray-100">
+        <tr
+          v-for="(product, index) in paginatedItems"
+          :key="product.title"
+          class="hover:bg-gray-100"
+        >
           <td class="border p-3">{{ startIndex + index + 1 }}</td>
-          <td class="border p-3">{{ berry.name }}</td>
+          <td class="border p-3">{{ product.title }}</td>
           <td class="border p-3">
             <button
               type="button"
@@ -86,10 +90,13 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
-// Props: List of items (berries)
+// Define Props
 const props = defineProps<{
-  items: { name: string }[];
+  items?: { title: string }[]; // ✅ Make `items` optional
 }>();
+
+// Ensure items always has a default value
+const items = computed(() => props.items ?? []);
 
 // Search state
 const searchQuery = ref("");
@@ -98,21 +105,23 @@ const searchQuery = ref("");
 const itemsPerPage = ref(10); // ✅ Default limit
 const currentPage = ref(1);
 
-// Filtered items based on search query
+// ✅ Corrected Search Filter
 const filteredItems = computed(() =>
-  props.items.filter((berry) => berry.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
+  items.value.filter((product) =>
+    product?.title?.toLowerCase()?.includes(searchQuery.value.toLowerCase())
+  )
 );
 
-// Calculate paginated items
+// ✅ Calculate paginated items
 const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
 const paginatedItems = computed(() =>
   filteredItems.value.slice(startIndex.value, startIndex.value + itemsPerPage.value)
 );
 
-// Calculate total pages
+// ✅ Calculate total pages
 const totalPages = computed(() => Math.ceil(filteredItems.value.length / itemsPerPage.value));
 
-// Functions for pagination
+// ✅ Functions for pagination
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;
