@@ -1,22 +1,18 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import axios from 'axios';
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import { fetchBerries, fetchBerryDetail } from "@/api/berry"; // ✅ Import API functions
 
-export const useBerryStore = defineStore('berryStore', () => {
-    const berries = ref<{ name: string }[]>([]);
+export const useBerryStore = defineStore("berryStore", () => {
+  const berries = ref<{ name: string; url: string }[]>([]);
+  const berryDetail = ref(null);
 
-    const loadBerries = async () => {
-        try {
-            console.log('Fetching berries...');
-            const response = await axios.get(
-                'https://pokeapi.co/api/v2/berry/'
-            );
-            berries.value = response.data.results;
-            console.log(berries.value, '=== berries fetched');
-        } catch (error) {
-            console.error('Error fetching berries:', error);
-        }
-    };
+  const loadBerries = async () => {
+    berries.value = await fetchBerries(); // ✅ Uses API function
+  };
 
-    return { berries, loadBerries };
+  const loadBerryDetail = async (berryUrl: string) => {
+    berryDetail.value = await fetchBerryDetail(berryUrl); // ✅ Uses API function
+  };
+
+  return { berries, berryDetail, loadBerries, loadBerryDetail };
 });
