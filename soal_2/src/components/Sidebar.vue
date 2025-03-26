@@ -8,14 +8,17 @@
       <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
       <ul class="space-y-2 font-medium">
-        <!-- List -->
+        <!-- List  -->
         <li>
           <RouterLink
             to="/"
-            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-black hover:bg-yellow-300 dark:hover:bg-yellow-500 group"
+            class="flex items-center p-2 text-white rounded-lg hover:bg-yellow-300 dark:hover:bg-yellow-500 group"
+            :class="{
+              'bg-yellow-500 dark:bg-yellow-700': isActiveRoute('/') || isActiveRoute('/detail'),
+            }"
           >
             <svg
-              class="w-6 h-6 text-gray-800 dark:text-black"
+              class="w-6 h-6 text-white"
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -38,22 +41,16 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from "vue-router";
+import { RouterLink, useRoute } from "vue-router";
+
+// Detect Active Routes
+const route = useRoute();
+const isActiveRoute = (path: string) => route.path.startsWith(path);
 </script>
 
 <style scoped>
 .logo {
   display: block;
   margin: 0 auto 2rem;
-}
-
-/* Set Sidebar Background to Yellow */
-.bg-yellow-400 {
-  background-color: #ffce1b !important;
-}
-
-/* Hover Effect */
-.hover\:bg-yellow-500:hover {
-  background-color: #e6b800 !important;
 }
 </style>

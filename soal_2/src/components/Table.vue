@@ -26,9 +26,9 @@
               type="button"
               class="py-1 px-3 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-blue-700"
             >
-              <router-link :to="'/detail/' + berry.name" class="text-purple-500"
-                >Detail</router-link
-              >
+              <router-link :to="'/detail/' + berry.name" class="text-purple-500">
+                Detail
+              </router-link>
             </button>
           </td>
         </tr>
@@ -57,19 +57,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted, watch } from "vue";
 
-// Props: List of items (berries)
 const props = defineProps<{
   items: { name: string }[];
 }>();
 
-// Search state
-const searchQuery = ref("");
+const searchQuery = ref(localStorage.getItem("searchQuery") || "");
+
+onMounted(() => {
+  searchQuery.value = localStorage.getItem("searchQuery") || "";
+});
+
+watch(searchQuery, (newQuery) => {
+  localStorage.setItem("searchQuery", newQuery);
+});
 
 // Pagination state
-const itemsPerPage = ref(10); // ✅ Default limit
+const itemsPerPage = ref(10);
 const currentPage = ref(1);
+
+watch(itemsPerPage, () => {
+  currentPage.value = 1;
+});
 
 // Filtered items based on search query
 const filteredItems = computed(() =>
@@ -100,7 +110,6 @@ const prevPage = () => {
 </script>
 
 <style scoped>
-/* Set Sidebar Background to Yellow */
 .bg-yellow-400 {
   background-color: #ffce1b !important;
 }

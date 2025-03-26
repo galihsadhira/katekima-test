@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { fetchProducts, fetchProductDetail } from "@/api/products";
-const API_URL = "https://fakestoreapi.com/products";
 
 export const useProductStore = defineStore("productStore", () => {
   const products = ref<

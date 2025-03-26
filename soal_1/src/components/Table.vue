@@ -21,7 +21,7 @@
           </select>
         </div>
 
-        <!-- "Tambah" Button -->
+        <!-- Tambah-->
         <router-link
           to="/add"
           class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700"
@@ -41,28 +41,40 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="(product, index) in paginatedItems"
-          :key="product.title"
-          class="hover:bg-gray-100"
-        >
-          <td class="border p-3">{{ startIndex + index + 1 }}</td>
-          <td class="border p-3">{{ product.title }}</td>
-          <td class="border p-3">
-            <button
-              type="button"
-              class="py-1 px-3 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-blue-700"
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              class="py-1 px-3 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700"
-            >
-              Hapus
-            </button>
-          </td>
-        </tr>
+        <!-- Loading State  -->
+        <template v-if="loading">
+          <tr v-for="n in itemsPerPage" :key="n" class="animate-pulse">
+            <td class="border p-3 bg-gray-200 h-6 w-10 rounded"></td>
+            <td class="border p-3 bg-gray-200 h-6 w-full rounded"></td>
+            <td class="border p-3 bg-gray-200 h-6 w-32 rounded"></td>
+          </tr>
+        </template>
+
+        <!-- Actual Data -->
+        <template v-else>
+          <tr
+            v-for="(product, index) in paginatedItems"
+            :key="product.title"
+            class="hover:bg-gray-100"
+          >
+            <td class="border p-3">{{ startIndex + index + 1 }}</td>
+            <td class="border p-3">{{ product.title }}</td>
+            <td class="border p-3">
+              <router-link
+                :to="`/edit/${product.id}`"
+                class="py-1 px-3 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-blue-700"
+              >
+                Edit
+              </router-link>
+              <button
+                type="button"
+                class="py-1 px-3 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700"
+              >
+                Hapus
+              </button>
+            </td>
+          </tr>
+        </template>
       </tbody>
     </table>
 
@@ -88,40 +100,56 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watchEffect, onMounted, watch } from "vue";
 
-// Define Props
 const props = defineProps<{
-  items?: { title: string }[]; // ✅ Make `items` optional
+  items?: {
+    id: any;
+    title: string;
+  }[];
 }>();
 
-// Ensure items always has a default value
+const loading = ref(true);
 const items = computed(() => props.items ?? []);
+const searchQuery = ref(localStorage.getItem("searchQuery") || "");
 
-// Search state
-const searchQuery = ref("");
+onMounted(() => {
+  searchQuery.value = localStorage.getItem("searchQuery") || "";
+});
 
-// Pagination state
-const itemsPerPage = ref(10); // ✅ Default limit
+watchEffect(() => {
+  localStorage.setItem("searchQuery", searchQuery.value);
+});
+
+watchEffect(() => {
+  if (items.value.length > 0) {
+    setTimeout(() => {
+      loading.value = false;
+    }, 500);
+  }
+});
+
+const itemsPerPage = ref(10);
 const currentPage = ref(1);
 
-// ✅ Corrected Search Filter
+watch(itemsPerPage, (newLimit, oldLimit) => {
+  const currentIndex = (currentPage.value - 1) * oldLimit;
+  currentPage.value = Math.floor(currentIndex / newLimit) + 1;
+});
+
 const filteredItems = computed(() =>
   items.value.filter((product) =>
     product?.title?.toLowerCase()?.includes(searchQuery.value.toLowerCase())
   )
 );
 
-// ✅ Calculate paginated items
 const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
 const paginatedItems = computed(() =>
   filteredItems.value.slice(startIndex.value, startIndex.value + itemsPerPage.value)
 );
 
-// ✅ Calculate total pages
 const totalPages = computed(() => Math.ceil(filteredItems.value.length / itemsPerPage.value));
 
-// ✅ Functions for pagination
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
     currentPage.value++;

@@ -59,8 +59,8 @@ const loading = ref(true);
 watchEffect(() => {
   if (props.product && Object.keys(props.product).length > 0) {
     setTimeout(() => {
-      loading.value = false; // Hide loader after data is loaded
-    }, 500); // Simulate a short delay
+      loading.value = false;
+    }, 500);
   }
 });
 </script>

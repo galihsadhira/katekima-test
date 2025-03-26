@@ -29,14 +29,13 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useProductStore } from "@/stores/productStore";
-import Detail from "@/components/Detail.vue"; // ✅ Product Detail Component
+import Detail from "@/components/Detail.vue";
 
-// Use the Pinia store
 const productStore = useProductStore();
-const isLoading = ref(false); // ✅ Track loading state
+const isLoading = ref(false);
 
 onMounted(() => {
-  productStore.loadProducts(); // ✅ Load products from API
+  productStore.loadProducts();
 });
 
 // Selected product ID
@@ -47,7 +46,7 @@ const changeProduct = async () => {
   if (selectedProductUrl.value) {
     isLoading.value = true; // ✅ Show loading
     await productStore.loadProductDetail(selectedProductUrl.value);
-    isLoading.value = false; // ✅ Hide loading after fetching
+    isLoading.value = false;
   }
 };
 </script>
